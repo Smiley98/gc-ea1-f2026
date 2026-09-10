@@ -4,15 +4,28 @@
 
 #include <array>
 #include <vector>
+#include <algorithm>
 
 constexpr float BALL_RADIUS = 25.0f;
 constexpr Vector2 GRAVITY = { 0.0f, 100.0f };
+
+struct Test
+{
+    bool enabled;
+};
 
 int main()
 {
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
+
+    // Simple automatic erase example -- tests[0] is removed because its not enabled
+    std::vector<Test> tests;
+    tests.push_back({ false });
+    tests.push_back({ true });
+    tests.push_back({ true });
+    std::erase_if(tests, [](Test test) { return !test.enabled; });
 
     Rectangle ground;
     ground.x = 0;
@@ -45,6 +58,8 @@ int main()
 
         ball_velocity += GRAVITY * dt * ball_gravity_scale;
         ball_position += ball_velocity * dt;
+
+        
 
         BeginDrawing();
             ClearBackground(WHITE);
