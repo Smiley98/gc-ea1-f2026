@@ -66,6 +66,10 @@ int main()
         for (Entity& e : entities)
             Update(e, GetFrameTime());
         
+        // You will need a 2D nested loop to test all entities against each other
+        // If two entities are colliding, flag them both for deletion!
+        // The below erase_if will handle removal from the vector (no need to change it)
+        // raylib has a useful function called CheckCollisionCircles
         for (Entity& e : entities)
             e.destroy = e.pos.y + BALL_RADIUS >= ground.y;
 
@@ -77,6 +81,12 @@ int main()
             DrawRectangleRec(platform, GRAY);
             for (const Entity& e : entities)
                 DrawCircleV(e.pos, BALL_RADIUS, e.color);
+
+            // % codes for data-types https://cplusplus.com/reference/cstdio/printf/
+            // TLDR %i for int, %f for float, %s for string
+            float time = GetTime();
+            const char* time_text = TextFormat("Time: %f", time);
+            DrawText(TextFormat("Time: %f", time), 10, 10, 20, DARKGRAY);
 
             DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
