@@ -9,23 +9,29 @@
 constexpr float BALL_RADIUS = 25.0f;
 constexpr Vector2 GRAVITY = { 0.0f, 100.0f };
 
-struct Test
+struct Entity
 {
-    bool enabled;
+    Vector2 pos;
+    Vector2 vel;
+    Vector2 acc;
+    float gravity_scale;
+    Color color;
+
+    bool destroy;
 };
+
+void Update(Entity& entity, float dt)
+{
+    entity.acc = GRAVITY * entity.gravity_scale;
+    entity.vel += entity.acc * dt;
+    entity.pos += entity.vel * dt;
+}
 
 int main()
 {
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
-
-    // Simple automatic erase example -- tests[0] is removed because its not enabled
-    std::vector<Test> tests;
-    tests.push_back({ false });
-    tests.push_back({ true });
-    tests.push_back({ true });
-    std::erase_if(tests, [](Test test) { return !test.enabled; });
 
     Rectangle ground;
     ground.x = 0;
@@ -43,30 +49,34 @@ int main()
     ball_launch_position.x = platform.x + BALL_RADIUS;
     ball_launch_position.y = platform.y - BALL_RADIUS;
 
-    Vector2 ball_position = ball_launch_position;
-    Vector2 ball_velocity = Vector2Zeros;
-    float ball_gravity_scale = 0.0f;
-
+    std::vector<Entity> entities;
     while (!WindowShouldClose())
     {
         float dt = GetFrameTime();
         if (IsKeyPressed(KEY_SPACE))
         {
-            ball_velocity = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD) * 200.0f;
-            ball_gravity_scale = 1.0f;
+            Entity ball{};
+            ball.color = BLUE;
+            ball.pos = ball_launch_position;
+            ball.vel = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD) * 200.0f;
+            ball.gravity_scale = 1.0f;
+            entities.push_back(ball);
         }
 
-        ball_velocity += GRAVITY * dt * ball_gravity_scale;
-        ball_position += ball_velocity * dt;
-
+        for (Entity& e : entities)
+            Update(e, GetFrameTime());
         
+        for (Entity& e : entities)
+            e.destroy = e.pos.y + BALL_RADIUS >= ground.y;
+
+        std::erase_if(entities, [](Entity e) { return e.destroy; });
 
         BeginDrawing();
             ClearBackground(WHITE);
             DrawRectangleRec(ground, BEIGE);
             DrawRectangleRec(platform, GRAY);
-
-            DrawCircleV(ball_position, BALL_RADIUS, DARKGRAY);
+            for (const Entity& e : entities)
+                DrawCircleV(e.pos, BALL_RADIUS, e.color);
 
             DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
