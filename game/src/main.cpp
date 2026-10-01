@@ -17,6 +17,29 @@ enum EntityType
     ENTITY_TYPE_TARGET
 };
 
+enum ColliderType
+{
+    COLLIDER_TYPE_NONE,
+    COLLIDER_TYPE_CIRCLE,
+    COLLIDER_TYPE_AABB
+};
+
+struct Collider
+{
+    ColliderType type;
+    union
+    {
+        struct
+        {
+            float radius;
+        };
+        struct
+        {
+            Vector2 half_extents;
+        };
+    };
+};
+
 struct Entity
 {
     Vector2 pos;
@@ -27,6 +50,8 @@ struct Entity
 
     EntityType type;
     bool destroy;
+
+    Collider collider;
 };
 
 void Update(Entity& entity, float dt)
@@ -36,31 +61,58 @@ void Update(Entity& entity, float dt)
     entity.pos += entity.vel * dt;
 }
 
-struct Data
+Rectangle RecFromAABB(Vector2 pos, Vector2 half_extents)
 {
-    // Union shares memory regions
-    // Size is equal to the largest memory layout (values == 12 bytes, ab == 8 bytes, so Data == 12 bytes)
-    union
-    {
-        struct
-        {
-            int a;
-            int b;
-        };
-        struct
-        {
-            int values[3];
-        };
-    };
+    Rectangle rec{};
+    rec.x = pos.x - half_extents.x;
+    rec.y = pos.y - half_extents.y;
+    rec.width = half_extents.x * 2.0f;
+    rec.height = half_extents.y * 2.0f;
+    return rec;
+}
+
+bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    assert(false);
+    return false;
+}
+
+bool HitTestCircles(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    bool result = CheckCollisionCircles(pos_a, col_a.radius, pos_b, col_b.radius);
+    return result;
+}
+
+bool HitTestCircleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    bool result = CheckCollisionCircleRec(pos_a, col_a.radius, RecFromAABB(pos_b, col_b.half_extents));
+    return result;
+}
+
+bool HitTestAABBCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    bool result = CheckCollisionCircleRec(pos_b, col_b.radius, RecFromAABB(pos_a, col_a.half_extents));
+    return result;
+}
+
+bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    bool result = CheckCollisionRecs(RecFromAABB(pos_a, col_a.half_extents), RecFromAABB(pos_b, col_b.half_extents));
+    return result;
+}
+
+using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b);
+
+CollisionFunc COLLISION_TABLE[3][3] =
+{
+    // NONE         // CIRCLE    // AABB
+    HitTestNone, HitTestNone,       HitTestNone,        // NONE
+    HitTestNone, HitTestCircles,    HitTestCircleAABB,  // CIRCLE
+    HitTestNone, HitTestAABBCircle, HitTestAABBs,       // AABBs
 };
 
 int main()
 {
-    Data d{};
-    d.a = 1;
-    d.values[1] = 2;
-    int sz = sizeof(d);
-
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
@@ -92,6 +144,9 @@ int main()
         target.pos.x = 150.0f + i * 50.0f;
         target.pos.y = (50.0f + 50 * (i < 5 ? 10 - i : i));
 
+        target.collider.type = i % 2 == 0 ? COLLIDER_TYPE_CIRCLE : COLLIDER_TYPE_AABB;
+        target.collider.half_extents = Vector2Ones * BALL_RADIUS;
+
         //launch_position.y - (100.0f + 50 * (i > 5 ? 10 - i : i));
         target.color = RED;
     }
@@ -118,6 +173,8 @@ int main()
             ball.pos = ball_launch_position;
             ball.vel = ball_launch_velocity;
             ball.gravity_scale = 1.0f;
+            ball.collider.type = COLLIDER_TYPE_CIRCLE;
+            ball.collider.radius = BALL_RADIUS;
             entities.push_back(ball);
         }
 
@@ -136,7 +193,9 @@ int main()
             {
                 Entity& a = entities[i];
                 Entity& b = entities[j];
-                bool collision = CheckCollisionCircles(a.pos, BALL_RADIUS, b.pos, BALL_RADIUS);
+                CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
+                bool collision = func(a.pos, a.collider, b.pos, b.collider);
+                //bool collision = CheckCollisionCircles(a.pos, BALL_RADIUS, b.pos, BALL_RADIUS);
                 bool same_type = a.type == b.type;
                 bool destroy = collision && !same_type;
                 a.destroy |= destroy;
@@ -152,8 +211,19 @@ int main()
             DrawRectangleRec(platform, GRAY);
 
             for (const Entity& e : entities)
-                DrawCircleV(e.pos, BALL_RADIUS, e.color);
+            {
+                switch (e.collider.type)
+                {
+                case COLLIDER_TYPE_CIRCLE:
+                    DrawCircleV(e.pos, BALL_RADIUS, e.color);
+                    break;
 
+                case COLLIDER_TYPE_AABB:
+                    DrawRectangleRec(RecFromAABB(e.pos, e.collider.half_extents), e.color);
+                    break;
+                }
+            }
+                
             DrawLineEx(ball_launch_position, ball_launch_position + ball_launch_velocity, 4.0f, ORANGE);
 
             // % codes for data-types https://cplusplus.com/reference/cstdio/printf/
