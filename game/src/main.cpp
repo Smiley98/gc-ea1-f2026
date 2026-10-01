@@ -36,8 +36,31 @@ void Update(Entity& entity, float dt)
     entity.pos += entity.vel * dt;
 }
 
+struct Data
+{
+    // Union shares memory regions
+    // Size is equal to the largest memory layout (values == 12 bytes, ab == 8 bytes, so Data == 12 bytes)
+    union
+    {
+        struct
+        {
+            int a;
+            int b;
+        };
+        struct
+        {
+            int values[3];
+        };
+    };
+};
+
 int main()
 {
+    Data d{};
+    d.a = 1;
+    d.values[1] = 2;
+    int sz = sizeof(d);
+
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
