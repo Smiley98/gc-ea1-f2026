@@ -275,19 +275,38 @@ int main()
 
         BeginDrawing();
             ClearBackground(WHITE);
-            DrawRectangleRec(ground, BEIGE);
-            DrawRectangleRec(platform, GRAY);
 
-            for (const Entity& e : entities)
-                DrawCollider(e.pos, e.collider, e.color);
-                
-            DrawLineEx(ball_launch_position, ball_launch_position + ball_launch_velocity, 4.0f, ORANGE);
+            //DrawRectangleRec(ground, BEIGE);
+            //DrawRectangleRec(platform, GRAY);
+            //
+            //for (const Entity& e : entities)
+            //    DrawCollider(e.pos, e.collider, e.color);
+            //    
+            //DrawLineEx(ball_launch_position, ball_launch_position + ball_launch_velocity, 4.0f, ORANGE);
 
-            // % codes for data-types https://cplusplus.com/reference/cstdio/printf/
-            // TLDR %i for int, %f for float, %s for string
-            float time = GetTime();
-            const char* time_text = TextFormat("Time: %f", time);
-            DrawText(TextFormat("Time: %f", time), 10, 10, 20, DARKGRAY);
+            // Representation 1
+            {
+                CapsuleCollider cap;
+                cap.radius = 20.0f;
+                cap.half_length = 40.0f;
+                cap.direction = Vector2UnitX;
+                DrawCapsuleCollider({ 440.0f, 720.0f }, cap, PINK);
+            }
+
+            // Representation 2
+            {
+                float r = 20.0f;
+                float hl = 40.0f;
+                float dist = (r + hl) * 2.0f;
+
+                Vector2 bottom = { 380.0f, 660.0f };
+                Vector2 top = bottom + Vector2UnitX * dist;
+
+                Vector2 position;
+                CapsuleCollider cap = CapsuleFromPoints(bottom, top, r, &position);
+            
+                DrawCapsuleCollider(position, cap, PURPLE);
+            }
 
             DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
