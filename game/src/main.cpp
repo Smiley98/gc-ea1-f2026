@@ -105,6 +105,25 @@ RMAPI Vector2 Vector2ProjectPointLine(Vector2 P, Vector2 A, Vector2 B)
     return A + (AB * Clamp(t, 0.0f, 1.0f));
 }
 
+void NearestPointsOnLines(Vector2 bot1, Vector2 top1, Vector2 bot2, Vector2 top2, Vector2* nearest1, Vector2* nearest2)
+{
+    {
+        Vector2 A = Vector2ProjectPointLine(top1, bot2, top2); // proj_top1_line2 
+        Vector2 B = Vector2ProjectPointLine(bot1, bot2, top2); // proj_bot1_line2
+        Vector2 C = Vector2ProjectPointLine(A, bot1, top1);    // proj_a_line1
+        Vector2 D = Vector2ProjectPointLine(B, bot1, top1);    // proj_b_line1
+        *nearest1 = Vector2LengthSqr(A - C) < Vector2LengthSqr(B - D) ? C : D; // Point on line 1 nearest to line 2
+    }
+
+    {
+        Vector2 A = Vector2ProjectPointLine(top2, bot1, top1); // proj_top2_line1 
+        Vector2 B = Vector2ProjectPointLine(bot2, bot1, top1); // proj_bot2_line1
+        Vector2 C = Vector2ProjectPointLine(A, bot2, top2);    // proj_a_line2
+        Vector2 D = Vector2ProjectPointLine(B, bot2, top2);    // proj_b_line2
+        *nearest2 = Vector2LengthSqr(A - C) < Vector2LengthSqr(B - D) ? C : D; // Point on line 2 nearest to line 1
+    }
+}
+
 bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
     assert(false);
@@ -151,14 +170,14 @@ bool HitTestCapsuleCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider
 
 bool HitTestCapsules(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    // Follow slide 33
+    // Follow slide 50
     bool result = false;
     return result;
 }
 
 bool HitTestAABBCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    // The above but parameters are reversed
+    // Follow slide 51
     bool result = false;
     return result;
 }
@@ -259,7 +278,6 @@ int main()
         target.collider.type = i % 2 == 0 ? COLLIDER_TYPE_CIRCLE : COLLIDER_TYPE_AABB;
         target.collider.aabb.half_extents = Vector2Ones * BALL_RADIUS;
 
-        //launch_position.y - (100.0f + 50 * (i > 5 ? 10 - i : i));
         target.color = RED;
     }
 
@@ -319,57 +337,30 @@ int main()
         BeginDrawing();
             ClearBackground(WHITE);
 
-            //DrawRectangleRec(ground, BEIGE);
-            //DrawRectangleRec(platform, GRAY);
+            // Point-rectangle projection illustration
+            //{
+            //    Vector2 rec_pos = { 400.0f, 400.0f };
+            //    Vector2 half_extents = { 80.0f, 40.0f };
+            //    DrawRectangleRec(RecFromAABB(rec_pos, half_extents), PURPLE);
             //
-            //for (const Entity& e : entities)
-            //    DrawCollider(e.pos, e.collider, e.color);
-            //    
-            //DrawLineEx(ball_launch_position, ball_launch_position + ball_launch_velocity, 4.0f, ORANGE);
-
-            // Representation 1
-            {
-                CapsuleCollider cap;
-                cap.radius = 20.0f;
-                cap.half_length = 40.0f;
-                cap.direction = Vector2UnitX;
-                DrawCapsuleCollider({ 440.0f, 720.0f }, cap, PINK);
-            }
-
-            // Representation 2
-            {
-                float r = 20.0f;
-                float hl = 40.0f;
-                float dist = (r + hl) * 2.0f;
-
-                Vector2 bottom = { 380.0f, 660.0f };
-                Vector2 top = bottom + Vector2UnitX * dist;
-
-                Vector2 position;
-                CapsuleCollider cap = CapsuleFromPoints(bottom, top, r, &position);
+            //    Vector2 p = GetMousePosition();
+            //    Vector2 proj = Vector2Clamp(p, rec_pos - half_extents, rec_pos + half_extents);
+            //    DrawCircleV(p, 20.0f, BLUE);
+            //    DrawCircleV(proj, 20.0f, ORANGE);
+            //}
             
-                DrawCapsuleCollider(position, cap, PURPLE);
-            }
-
-            Vector2 rec_pos = { 400.0f, 400.0f };
-            Vector2 half_extents = { 80.0f, 40.0f };
-            DrawRectangleRec(RecFromAABB(rec_pos, half_extents), PURPLE);
-
-            Vector2 p = GetMousePosition();
-            Vector2 proj = Vector2Clamp(p, rec_pos - half_extents, rec_pos + half_extents);
-            DrawCircleV(p, 20.0f, BLUE);
-            DrawCircleV(proj, 20.0f, ORANGE);
-
-            //Vector2 a = { 200.0f, 200.0f };
-            //Vector2 b = { 600.0f, 600.0f };
-            //Vector2 p = GetMousePosition();
+            // Point-line projection illustration
+            //{
+            //    Vector2 a = { 200.0f, 200.0f };
+            //    Vector2 b = { 600.0f, 600.0f };
+            //    Vector2 p = GetMousePosition();
             //
-            //DrawLineEx(a, b, 4.0f, BLUE);
-            //DrawCircleV(p, 20.0f, PURPLE);
-            //Vector2 c = Vector2ProjectPointLine(p, a, b);
-            //DrawCircleV(c, 20.0f, ORANGE);
+            //    DrawLineEx(a, b, 4.0f, BLUE);
+            //    DrawCircleV(p, 20.0f, PURPLE);
+            //    Vector2 c = Vector2ProjectPointLine(p, a, b);
+            //    DrawCircleV(c, 20.0f, ORANGE);
+            //}
 
-            DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
     }
 
