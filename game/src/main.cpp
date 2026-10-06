@@ -98,6 +98,13 @@ CapsuleCollider CapsuleFromPoints(Vector2 bottom, Vector2 top, float radius, Vec
     return capsule;
 }
 
+RMAPI Vector2 Vector2ProjectPointLine(Vector2 P, Vector2 A, Vector2 B)
+{
+    Vector2 AB = (B - A);
+    float t = Vector2DotProduct((P - A), AB) / Vector2DotProduct(AB, AB);
+    return A + (AB * Clamp(t, 0.0f, 1.0f));
+}
+
 bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
     assert(false);
@@ -307,6 +314,15 @@ int main()
             
                 DrawCapsuleCollider(position, cap, PURPLE);
             }
+
+            Vector2 a = { 200.0f, 200.0f };
+            Vector2 b = { 600.0f, 600.0f };
+            Vector2 p = GetMousePosition();
+
+            DrawLineEx(a, b, 4.0f, BLUE);
+            DrawCircleV(p, 20.0f, PURPLE);
+            Vector2 c = Vector2ProjectPointLine(p, a, b);
+            DrawCircleV(c, 20.0f, ORANGE);
 
             DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
