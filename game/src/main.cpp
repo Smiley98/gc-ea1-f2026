@@ -21,7 +21,25 @@ enum ColliderType
 {
     COLLIDER_TYPE_NONE,
     COLLIDER_TYPE_CIRCLE,
-    COLLIDER_TYPE_AABB
+    COLLIDER_TYPE_AABB,
+    COLLIDER_TYPE_CAPSULE
+};
+
+struct CircleCollider
+{
+    float radius;
+};
+
+struct AABBCollider
+{
+    Vector2 half_extents;
+};
+
+struct CapsuleCollider
+{
+    float radius;
+    Vector2 half_extents;
+    Vector2 direction;
 };
 
 struct Collider
@@ -29,14 +47,9 @@ struct Collider
     ColliderType type;
     union
     {
-        struct
-        {
-            float radius;
-        };
-        struct
-        {
-            Vector2 half_extents;
-        };
+        CircleCollider circle;
+        AABBCollider aabb;
+        CapsuleCollider capsule;
     };
 };
 
@@ -79,25 +92,25 @@ bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 
 bool HitTestCircles(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    bool result = CheckCollisionCircles(pos_a, col_a.radius, pos_b, col_b.radius);
+    bool result = CheckCollisionCircles(pos_a, col_a.circle.radius, pos_b, col_b.circle.radius);
     return result;
 }
 
 bool HitTestCircleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    bool result = CheckCollisionCircleRec(pos_a, col_a.radius, RecFromAABB(pos_b, col_b.half_extents));
+    bool result = CheckCollisionCircleRec(pos_a, col_a.circle.radius, RecFromAABB(pos_b, col_b.aabb.half_extents));
     return result;
 }
 
 bool HitTestAABBCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    bool result = CheckCollisionCircleRec(pos_b, col_b.radius, RecFromAABB(pos_a, col_a.half_extents));
+    bool result = CheckCollisionCircleRec(pos_b, col_b.circle.radius, RecFromAABB(pos_a, col_a.aabb.half_extents));
     return result;
 }
 
 bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
 {
-    bool result = CheckCollisionRecs(RecFromAABB(pos_a, col_a.half_extents), RecFromAABB(pos_b, col_b.half_extents));
+    bool result = CheckCollisionRecs(RecFromAABB(pos_a, col_a.aabb.half_extents), RecFromAABB(pos_b, col_b.aabb.half_extents));
     return result;
 }
 
@@ -145,7 +158,7 @@ int main()
         target.pos.y = (50.0f + 50 * (i < 5 ? 10 - i : i));
 
         target.collider.type = i % 2 == 0 ? COLLIDER_TYPE_CIRCLE : COLLIDER_TYPE_AABB;
-        target.collider.half_extents = Vector2Ones * BALL_RADIUS;
+        target.collider.aabb.half_extents = Vector2Ones * BALL_RADIUS;
 
         //launch_position.y - (100.0f + 50 * (i > 5 ? 10 - i : i));
         target.color = RED;
@@ -174,7 +187,7 @@ int main()
             ball.vel = ball_launch_velocity;
             ball.gravity_scale = 1.0f;
             ball.collider.type = COLLIDER_TYPE_CIRCLE;
-            ball.collider.radius = BALL_RADIUS;
+            ball.collider.circle.radius = BALL_RADIUS;
             entities.push_back(ball);
         }
 
@@ -195,7 +208,6 @@ int main()
                 Entity& b = entities[j];
                 CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
                 bool collision = func(a.pos, a.collider, b.pos, b.collider);
-                //bool collision = CheckCollisionCircles(a.pos, BALL_RADIUS, b.pos, BALL_RADIUS);
                 bool same_type = a.type == b.type;
                 bool destroy = collision && !same_type;
                 a.destroy |= destroy;
@@ -215,11 +227,11 @@ int main()
                 switch (e.collider.type)
                 {
                 case COLLIDER_TYPE_CIRCLE:
-                    DrawCircleV(e.pos, BALL_RADIUS, e.color);
+                    DrawCircleV(e.pos, e.collider.circle.radius, e.color);
                     break;
 
                 case COLLIDER_TYPE_AABB:
-                    DrawRectangleRec(RecFromAABB(e.pos, e.collider.half_extents), e.color);
+                    DrawRectangleRec(RecFromAABB(e.pos, e.collider.aabb.half_extents), e.color);
                     break;
                 }
             }
