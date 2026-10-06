@@ -135,14 +135,50 @@ bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
     return result;
 }
 
+bool HitTestCircleCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    // Follow slide 33
+    bool result = false;
+    return result;
+}
+
+bool HitTestCapsuleCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    // The above but parameters are reversed
+    bool result = false;
+    return result;
+}
+
+bool HitTestCapsules(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    // Follow slide 33
+    bool result = false;
+    return result;
+}
+
+bool HitTestAABBCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    // The above but parameters are reversed
+    bool result = false;
+    return result;
+}
+
+bool HitTestCapsuleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+{
+    // The above but parameters are reversed
+    bool result = false;
+    return result;
+}
+
 using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b);
 
-CollisionFunc COLLISION_TABLE[3][3] =
+CollisionFunc COLLISION_TABLE[4][4] =
 {
-    // NONE         // CIRCLE    // AABB
-    HitTestNone, HitTestNone,       HitTestNone,        // NONE
-    HitTestNone, HitTestCircles,    HitTestCircleAABB,  // CIRCLE
-    HitTestNone, HitTestAABBCircle, HitTestAABBs,       // AABBs
+    // NONE      // CIRCLE              // AABB             //CAPSULE
+    HitTestNone, HitTestNone,           HitTestNone,        HitTestNone,            // NONE
+    HitTestNone, HitTestCircles,        HitTestCircleAABB,  HitTestCircleCapsule,   // CIRCLE
+    HitTestNone, HitTestAABBCircle,     HitTestAABBs,       HitTestNone,            // AABBs
+    HitTestNone, HitTestCapsuleCircle,  HitTestNone,        HitTestNone             // CAPSULE
 };
 
 void DrawCapsuleCollider(Vector2 position, CapsuleCollider collider, Color color)
@@ -315,14 +351,23 @@ int main()
                 DrawCapsuleCollider(position, cap, PURPLE);
             }
 
-            Vector2 a = { 200.0f, 200.0f };
-            Vector2 b = { 600.0f, 600.0f };
-            Vector2 p = GetMousePosition();
+            Vector2 rec_pos = { 400.0f, 400.0f };
+            Vector2 half_extents = { 80.0f, 40.0f };
+            DrawRectangleRec(RecFromAABB(rec_pos, half_extents), PURPLE);
 
-            DrawLineEx(a, b, 4.0f, BLUE);
-            DrawCircleV(p, 20.0f, PURPLE);
-            Vector2 c = Vector2ProjectPointLine(p, a, b);
-            DrawCircleV(c, 20.0f, ORANGE);
+            Vector2 p = GetMousePosition();
+            Vector2 proj = Vector2Clamp(p, rec_pos - half_extents, rec_pos + half_extents);
+            DrawCircleV(p, 20.0f, BLUE);
+            DrawCircleV(proj, 20.0f, ORANGE);
+
+            //Vector2 a = { 200.0f, 200.0f };
+            //Vector2 b = { 600.0f, 600.0f };
+            //Vector2 p = GetMousePosition();
+            //
+            //DrawLineEx(a, b, 4.0f, BLUE);
+            //DrawCircleV(p, 20.0f, PURPLE);
+            //Vector2 c = Vector2ProjectPointLine(p, a, b);
+            //DrawCircleV(c, 20.0f, ORANGE);
 
             DrawCircleV(GetMousePosition(), 20.0f, RED);
         EndDrawing();
