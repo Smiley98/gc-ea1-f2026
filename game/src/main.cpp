@@ -124,6 +124,50 @@ void NearestPointsOnLines(Vector2 bot1, Vector2 top1, Vector2 bot2, Vector2 top2
     }
 }
 
+///////////////////////////////
+// Primitive functions begin //
+///////////////////////////////
+
+bool HitTestCircles(Vector2 pos_a, float radius_a, Vector2 pos_b, float radius_b, Vector2* mtv)
+{
+    // Follow slide 28
+    return false;
+}
+
+bool HitTestCircleCapsule(Vector2 pos_circle, float radius_circle, Vector2 pos_capsule, float radius_capsule, float half_length, Vector2 direction, Vector2* mtv)
+{
+    return false;
+}
+
+bool HitTestCircleAABB(Vector2 pos_circle, float radius, Vector2 pos_aabb, Vector2 half_extents, Vector2* mtv)
+{
+    return false;
+}
+
+bool HitTestCapsuleAABB(Vector2 pos_capsule, float radius_capsule, float half_height, Vector2 direction, Vector2 pos_aabb, Vector2 half_extents, Vector2* mtv)
+{
+    return false;
+}
+
+bool HitTestAABBs(Vector2 pos_a, Vector2 half_extents_a, Vector2 pos_b, Vector2 half_extents_b, Vector2* mtv)
+{
+    return false;
+}
+
+bool HitTestCapsules(
+    Vector2 pos_a, float radius_a, float half_length_a, Vector2 direction_a,
+    Vector2 pos_b, float radius_b, float half_length_b, Vector2 direction_b, Vector2* mtv)
+{
+    return false;
+}
+
+///////////////////////////////
+// Primitive functions end ////
+///////////////////////////////
+
+//////////////////////////////
+// Collider overloads begin //
+//////////////////////////////
 bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     assert(false);
@@ -132,62 +176,67 @@ bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, V
 
 bool HitTestCircles(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
-    bool result = CheckCollisionCircles(pos_a, col_a.circle.radius, pos_b, col_b.circle.radius);
+    bool result = HitTestCircles(pos_a, col_a.circle.radius, pos_b, col_b.circle.radius, mtv);
     return result;
 }
 
 bool HitTestCircleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
-    bool result = CheckCollisionCircleRec(pos_a, col_a.circle.radius, RecFromAABB(pos_b, col_b.aabb.half_extents));
+    bool result = HitTestCircleAABB(pos_a, col_a.circle.radius, pos_b, col_b.aabb.half_extents, mtv);
     return result;
 }
 
 bool HitTestAABBCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
-    bool result = CheckCollisionCircleRec(pos_b, col_b.circle.radius, RecFromAABB(pos_a, col_a.aabb.half_extents));
+    bool result = HitTestCircleAABB(pos_b, col_b.circle.radius, pos_a, col_a.aabb.half_extents, mtv);
     return result;
 }
 
 bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
-    bool result = CheckCollisionRecs(RecFromAABB(pos_a, col_a.aabb.half_extents), RecFromAABB(pos_b, col_b.aabb.half_extents));
+    bool result = HitTestAABBs(pos_a, col_a.aabb.half_extents, pos_b, col_b.aabb.half_extents, mtv);
     return result;
 }
 
 bool HitTestCircleCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 33
-    bool result = false;
+    bool result = HitTestCircleCapsule(pos_a, col_a.circle.radius, pos_b, col_b.capsule.radius, col_b.capsule.half_length, col_b.capsule.direction, mtv);
     return result;
 }
 
 bool HitTestCapsuleCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // The above but parameters are reversed
-    bool result = false;
+    bool result = HitTestCircleCapsule(pos_b, col_b.circle.radius, pos_a, col_a.capsule.radius, col_a.capsule.half_length, col_a.capsule.direction, mtv);
     return result;
 }
 
 bool HitTestCapsules(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 50
-    bool result = false;
+    bool result = HitTestCapsules(
+        pos_a, col_a.capsule.radius, col_a.capsule.half_length, col_a.capsule.direction,
+        pos_b, col_b.capsule.radius, col_b.capsule.half_length, col_b.capsule.direction, mtv);
     return result;
 }
 
 bool HitTestAABBCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 51
-    bool result = false;
+    bool result = HitTestCapsuleAABB(pos_b, col_b.capsule.radius, col_b.capsule.half_length, col_b.capsule.direction, pos_a, col_a.aabb.half_extents, mtv);
     return result;
 }
 
 bool HitTestCapsuleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // The above but parameters are reversed
-    bool result = false;
+    bool result = HitTestCapsuleAABB(pos_a, col_a.capsule.radius, col_a.capsule.half_length, col_a.capsule.direction, pos_b, col_b.aabb.half_extents, mtv);
     return result;
 }
+//////////////////////////////
+// Collider overloads end ////
+//////////////////////////////
 
 using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv);
 
