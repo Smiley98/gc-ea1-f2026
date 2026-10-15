@@ -124,72 +124,72 @@ void NearestPointsOnLines(Vector2 bot1, Vector2 top1, Vector2 bot2, Vector2 top2
     }
 }
 
-bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestNone(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     assert(false);
     return false;
 }
 
-bool HitTestCircles(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCircles(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     bool result = CheckCollisionCircles(pos_a, col_a.circle.radius, pos_b, col_b.circle.radius);
     return result;
 }
 
-bool HitTestCircleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCircleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     bool result = CheckCollisionCircleRec(pos_a, col_a.circle.radius, RecFromAABB(pos_b, col_b.aabb.half_extents));
     return result;
 }
 
-bool HitTestAABBCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestAABBCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     bool result = CheckCollisionCircleRec(pos_b, col_b.circle.radius, RecFromAABB(pos_a, col_a.aabb.half_extents));
     return result;
 }
 
-bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestAABBs(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     bool result = CheckCollisionRecs(RecFromAABB(pos_a, col_a.aabb.half_extents), RecFromAABB(pos_b, col_b.aabb.half_extents));
     return result;
 }
 
-bool HitTestCircleCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCircleCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 33
     bool result = false;
     return result;
 }
 
-bool HitTestCapsuleCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCapsuleCircle(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // The above but parameters are reversed
     bool result = false;
     return result;
 }
 
-bool HitTestCapsules(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCapsules(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 50
     bool result = false;
     return result;
 }
 
-bool HitTestAABBCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestAABBCapsule(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // Follow slide 51
     bool result = false;
     return result;
 }
 
-bool HitTestCapsuleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b)
+bool HitTestCapsuleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv)
 {
     // The above but parameters are reversed
     bool result = false;
     return result;
 }
 
-using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b);
+using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv);
 
 CollisionFunc COLLISION_TABLE[4][4] =
 {
@@ -323,8 +323,10 @@ int main()
             {
                 Entity& a = entities[i];
                 Entity& b = entities[j];
+
+                Vector2 mtv = Vector2Zeros;
                 CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
-                bool collision = func(a.pos, a.collider, b.pos, b.collider);
+                bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
                 bool same_type = a.type == b.type;
                 bool destroy = collision && !same_type;
                 a.destroy |= destroy;
