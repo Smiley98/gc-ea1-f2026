@@ -2,6 +2,16 @@
 #include "raymath.h"
 #include "raygui.h"
 
+float AngleBetween(Vector3 a, Vector3 b)
+{
+    float dot = Vector3DotProduct(a, b);
+    float ma = Vector3Length(a);
+    float mb = Vector3Length(b);
+    float cos = dot / (ma * mb);
+    float theta = acosf(cos) * RAD2DEG;
+    return theta;
+}
+
 int main(void)
 {
     InitWindow(1280, 720, "Game");
@@ -16,6 +26,13 @@ int main(void)
         float cos = dot / (ma * mb);
         float theta = acosf(cos) * RAD2DEG;
         TraceLog(LOG_INFO, "lit");
+    }
+
+    // Get students to build a math library cause I don't wanna teach matrices for more than 3 weeks?
+    {
+        float d = Vector3DotProduct({ 2, 4, 6 }, { -5, 7, 9 });
+        float a1 = Vector3Angle({ 2, 4, 6 }, { -5, 7, 9 }) * RAD2DEG;
+        float a2 = AngleBetween({ 2, 4, 6 }, { -5, 7, 9 });
     }
 
     while (!WindowShouldClose())
