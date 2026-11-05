@@ -1,11 +1,4 @@
-#include "raylib.h"
-#include "raymath.h"
-#include "raygui.h"
-
-#include <cassert>
-#include <array>
-#include <vector>
-#include <algorithm>
+#include "ea1.cpp"
 
 constexpr float BALL_RADIUS = 25.0f;
 constexpr Vector2 GRAVITY = { 0.0f, 100.0f };
@@ -389,16 +382,16 @@ int main()
             ClearBackground(WHITE);
 
             // Point-rectangle projection illustration
-            //{
-            //    Vector2 rec_pos = { 400.0f, 400.0f };
-            //    Vector2 half_extents = { 80.0f, 40.0f };
-            //    DrawRectangleRec(RecFromAABB(rec_pos, half_extents), PURPLE);
-            //
-            //    Vector2 p = GetMousePosition();
-            //    Vector2 proj = Vector2Clamp(p, rec_pos - half_extents, rec_pos + half_extents);
-            //    DrawCircleV(p, 20.0f, BLUE);
-            //    DrawCircleV(proj, 20.0f, ORANGE);
-            //}
+            {
+                Vector2 rec_pos = { 400.0f, 400.0f };
+                Vector2 half_extents = { 80.0f, 40.0f };
+                DrawRectangleRec(RecFromAABB(rec_pos, half_extents), PURPLE);
+            
+                Vector2 p = GetMousePosition();
+                Vector2 proj = Vector2Clamp(p, rec_pos - half_extents, rec_pos + half_extents);
+                DrawCircleV(p, 20.0f, BLUE);
+                DrawCircleV(proj, 20.0f, ORANGE);
+            }
             
             // Point-line projection illustration
             //{

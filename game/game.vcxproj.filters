@@ -20,6 +20,9 @@
     <None Include="src\app.ico">
       <Filter>Application Resource Files</Filter>
     </None>
+    <None Include="src\ea1.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\resources.rc">
