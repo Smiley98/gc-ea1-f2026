@@ -2,41 +2,93 @@
 #include "raymath.h"
 #include "raygui.h"
 
-RMAPI Vector2 Vector2ProjectPointLine(Vector2 P, Vector2 A, Vector2 B)
-{
-    Vector2 AB = (B - A);
-    float t = Vector2DotProduct((P - A), AB) / Vector2DotProduct(AB, AB);
-    return A + AB * t;//(AB * Clamp(t, 0.0f, 1.0f));
-}
-
 int main()
 {
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
 
-    Vector2 origin = { 400.0f, 400.0f };
+    int scene = 0;
 
-    float angle_b = 0.0f;
-
+    float ball_radius = 20.0f;
+    Vector2 ball_pos = { 100.0f, 400.0f };
+    Vector2 ball_vel = Vector2UnitX * 250.0f;
+    Color ball_color = RED;
     while (!WindowShouldClose())
     {
-        Vector2 a = GetMousePosition();
-        Vector2 b = Vector2Rotate(Vector2UnitX, angle_b * DEG2RAD) * 250.0f;
-        //Vector2 proj = Vector2DotProduct(a, b) / Vector2DotProduct(b, b) * b;
-        Vector2 proj = Vector2ProjectPointLine(a, origin, origin + b);
+        if (IsKeyPressed(KEY_TAB))
+        {
+            ++scene %= 6;
+            if (scene == 0)
+            {
+                ball_color = RED;
+                ball_pos = { 100.0f, 400.0f };
+                ball_vel = Vector2UnitX * 250.0f;
+            }
+            else if (scene == 1)
+            {
+                ball_color = GREEN;
+                ball_pos = { 400.0f, 100.0f };
+                ball_vel = Vector2UnitY * 250.0f;
+            }
+            else if (scene == 2)
+            {
+                ball_color = BLUE;
+            }
+            else if (scene == 3)
+            {
+                ball_color = PURPLE;
+            }
+            else if (scene == 4)
+            {
+                ball_color = ORANGE;
+            }
+            else if (scene == 5)
+            {
+                ball_color = SKYBLUE;
+                ball_vel = Vector2Normalize(Vector2UnitX + Vector2UnitY * 0.5f) * 250.0f;
+                ball_pos = { 400.0f, 400.0f };
+            }
+        }
+
+        float dt = GetFrameTime();
+        if (scene == 0)
+        {
+            ball_pos += ball_vel * dt;
+            if (ball_pos.x - ball_radius >= GetScreenWidth()) ball_pos.x = 0.0f;
+        }
+        else if (scene == 1)
+        {
+            ball_pos += ball_vel * dt;
+            if (ball_pos.y - ball_radius >= GetScreenHeight()) ball_pos.y = 0.0f;
+        }
+        else if (scene == 2)
+        {
+            ball_pos.x = 400.0f + sinf(GetTime()) * 300.0f;
+            ball_pos.y = 400.0f;
+        }
+        else if (scene == 3)
+        {
+            ball_pos.x = 400.0f;
+            ball_pos.y = 400.0f + sinf(GetTime()) * 300.0f;
+        }
+        else if (scene == 4)
+        {
+            ball_pos.x = 400.0f + cosf(GetTime()) * 300.0f;
+            ball_pos.y = 400.0f + sinf(GetTime()) * 300.0f;
+        }
+        else if (scene == 5)
+        {
+            Vector2 next_pos = ball_pos + ball_vel * dt;
+            if (next_pos.x + ball_radius >= GetScreenWidth()  || next_pos.x - ball_radius <= 0.0f) ball_vel.x *= -1.0f;
+            if (next_pos.y + ball_radius >= GetScreenHeight() || next_pos.y - ball_radius <= 0.0f) ball_vel.y *= -1.0f;
+            ball_pos += ball_vel * dt;
+        }
 
         BeginDrawing();
         ClearBackground(WHITE);
-
-        DrawCircleV(a, 20.0f, RED);
-        DrawLineEx(origin, a, 4.0f, ORANGE);
-        DrawLineEx(origin, origin + b, 4.0f, BLUE);
-        DrawCircleV(proj, 8.0f, PURPLE);
-        DrawLineEx(a, proj, 4.0f, PINK);
-
-        GuiSlider({ 20, 10, 160, 80 }, "0", "360", &angle_b, 0.0f, 360.0f);
-
+        DrawCircleV(ball_pos, ball_radius, ball_color);
+        if (scene == 5) DrawText("DVD", ball_pos.x - ball_radius, ball_pos.y - 10, 20, DARKBLUE);
         EndDrawing();
     }
 
