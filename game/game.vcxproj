@@ -112,6 +112,7 @@
     <None Include="src\Geometry.cpp" />
     <None Include="src\Collision.cpp" />
     <None Include="src\CollisionBase.cpp" />
+    <None Include="src\Draw.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

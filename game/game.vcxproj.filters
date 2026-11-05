@@ -38,6 +38,9 @@
     <None Include="src\Collision.cpp">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="src\Draw.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\resources.rc">
