@@ -72,3 +72,4 @@ struct Entity
 #include "CollisionBase.cpp"
 #include "Collision.cpp"
 #include "Entity.cpp"
+#include "Draw.cpp"

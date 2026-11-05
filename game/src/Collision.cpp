@@ -1,4 +1,6 @@
 
+using CollisionFunc = bool(*)(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider col_b, Vector2* mtv);
+
 //////////////////////////////
 // Collider overloads begin //
 //////////////////////////////
