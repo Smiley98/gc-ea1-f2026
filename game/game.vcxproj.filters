@@ -23,6 +23,21 @@
     <None Include="src\ea1.cpp">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="src\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\Math.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\CollisionBase.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\resources.rc">

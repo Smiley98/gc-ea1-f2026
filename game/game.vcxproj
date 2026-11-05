@@ -108,6 +108,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="src\ea1.cpp" />
+    <None Include="src\Entity.cpp" />
+    <None Include="src\Geometry.cpp" />
+    <None Include="src\Collision.cpp" />
+    <None Include="src\CollisionBase.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +124,9 @@
     <ProjectReference Include="..\raylib-master\raylib.vcxproj">
       <Project>{8898EA18-743A-15EF-5DF5-284349369C3F}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Math.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
