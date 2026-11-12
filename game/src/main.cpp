@@ -13,9 +13,7 @@ struct BallPit
 
 struct ColliderTest
 {
-    Collider copy_circle;
-    Collider copy_aabb;
-    Collider copy_capsule;
+    std::array<Collider, 4> templates;
 
     Entity a;
     Entity b;
@@ -32,14 +30,15 @@ void AppDrawBallPit(const BallPit& ball_pit);
 
 int main()
 {
-    int state = APP_STATE_COLLIDER_TEST;
-
-    BallPit ball_pit{};
-    ColliderTest collider_test{};
-
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
+
+    int state = APP_STATE_COLLIDER_TEST;
+    BallPit ball_pit{};
+    ColliderTest collider_test{};
+    AppInitBallPit(&ball_pit);
+    AppInitColliderTest(&collider_test);
 
     while (!WindowShouldClose())
     {
@@ -151,24 +150,35 @@ void AppInitBallPit(BallPit* ball_pit)
 
 void AppInitColliderTest(ColliderTest* collider_test)
 {
-    collider_test->copy_circle.circle.radius = 20.0f;
-    collider_test->copy_aabb.aabb.half_extents = { 40.0f, 20.0f };
-    collider_test->copy_capsule.capsule.radius = 20.0f;
-    collider_test->copy_capsule.capsule.half_length = 30.0f;
-    collider_test->copy_capsule.capsule.direction = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD);
+    collider_test->templates[COLLIDER_TYPE_CIRCLE].circle.radius = 20.0f;
+    collider_test->templates[COLLIDER_TYPE_AABB].aabb.half_extents = { 40.0f, 20.0f };
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.radius = 20.0f;
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.half_length = 30.0f;
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.direction = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD);
 
-    collider_test->copy_circle.type = COLLIDER_TYPE_CIRCLE;
-    collider_test->copy_aabb.type = COLLIDER_TYPE_AABB;
-    collider_test->copy_capsule.type = COLLIDER_TYPE_CAPSULE;
+    collider_test->templates[COLLIDER_TYPE_CIRCLE].type = COLLIDER_TYPE_CIRCLE;
+    collider_test->templates[COLLIDER_TYPE_AABB].type = COLLIDER_TYPE_AABB;
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].type = COLLIDER_TYPE_CAPSULE;
 
     Entity& a = collider_test->a;
     Entity& b = collider_test->b;
-    a.collider = collider_test->copy_circle;
-    b.collider = collider_test->copy_circle;
+    a.collider = collider_test->templates[COLLIDER_TYPE_CIRCLE];
+    b.collider = collider_test->templates[COLLIDER_TYPE_CIRCLE];
+    a.pos = { GetScreenWidth() * 0.25f, GetScreenHeight() * 0.5f };
+    b.pos = { GetScreenWidth() * 0.75f, GetScreenHeight() * 0.5f };
 }
 
-void AppUpdateColliderTest(ColliderTest* collider_test)
+void AppUpdateColliderTest(ColliderTest* test)
 {
+    Entity& a = test->a;
+    Entity& b = test->b;
+    Vector2 mtv = Vector2Zeros;
+    b.pos = GetMousePosition();
+    CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
+    bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
+    a.pos += mtv;
+    a.color = collision ? RED : GREEN;
+    b.color = collision ? RED : GREEN;
 }
 
 void AppDrawBallPit(const BallPit& ball_pit)
@@ -181,9 +191,16 @@ void AppDrawBallPit(const BallPit& ball_pit)
     DrawFPS(720, 5);
 }
 
-void AppDrawColliderTest(ColliderTest& collider_test)
+void AppDrawColliderTest(ColliderTest& test)
 {
+    DrawCollider(test.a.pos, test.a.collider, test.a.color);
+    DrawCollider(test.b.pos, test.b.collider, test.b.color);
+
+    static int type_a = COLLIDER_TYPE_CIRCLE;
+    static int type_b = COLLIDER_TYPE_CIRCLE;
     ClearBackground(WHITE);
-    GuiToggleGroup({ 10, 10, 90, 30 }, "None A;Circle A;Box A;Capsule A", (int*)&collider_test.a.collider.type);
-    GuiToggleGroup({ 10, 45, 90, 30 }, "None B;Circle B;Box B;Capsule B", (int*)&collider_test.b.collider.type);
+    GuiToggleGroup({ 10, 10, 90, 30 }, "None A;Circle A;Box A;Capsule A", &type_a);
+    GuiToggleGroup({ 10, 45, 90, 30 }, "None B;Circle B;Box B;Capsule B", &type_b);
+    test.a.collider = test.templates[type_a];
+    test.b.collider = test.templates[type_b];
 }
