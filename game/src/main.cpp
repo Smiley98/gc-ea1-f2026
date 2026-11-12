@@ -2,8 +2,8 @@
 
 enum AppState
 {
-    APP_STATE_COLLIDER_TEST,
-    APP_STATE_BALL_PIT
+    APP_STATE_BALL_PIT,
+    APP_STATE_COLLIDER_TEST
 };
 
 struct BallPit
@@ -13,22 +13,28 @@ struct BallPit
 
 struct ColliderTest
 {
+    Collider copy_circle;
+    Collider copy_aabb;
+    Collider copy_capsule;
 
+    Entity a;
+    Entity b;
 };
 
-void AppUpdateBallPit(BallPit* ball_pit);
-void AppUpdateColliderTest(ColliderTest* collider_test);
+void AppInitBallPit(BallPit* ball_pit);
+void AppInitColliderTest(ColliderTest* collider_test);
 
+void AppUpdateColliderTest(ColliderTest* collider_test);
+void AppUpdateBallPit(BallPit* ball_pit);
+
+void AppDrawColliderTest(ColliderTest& collider_test);
 void AppDrawBallPit(const BallPit& ball_pit);
-void AppDrawColliderTest(const ColliderTest& collider_test);
 
 int main()
 {
-    int state = APP_STATE_BALL_PIT;
+    int state = APP_STATE_COLLIDER_TEST;
 
     BallPit ball_pit{};
-    ball_pit.balls.reserve(128);
-
     ColliderTest collider_test{};
 
     InitWindow(800, 800, "Game");
@@ -41,7 +47,9 @@ int main()
         {
             ++state %= 2;
             if (state == APP_STATE_BALL_PIT)
-                ball_pit.balls.clear();
+                AppInitBallPit(&ball_pit);
+            else if (state == APP_STATE_COLLIDER_TEST)
+                AppInitColliderTest(&collider_test);
         }
 
         switch (state)
@@ -135,6 +143,30 @@ void AppUpdateBallPit(BallPit* ball_pit)
     }
 }
 
+void AppInitBallPit(BallPit* ball_pit)
+{
+    ball_pit->balls.reserve(128);
+    ball_pit->balls.clear();
+}
+
+void AppInitColliderTest(ColliderTest* collider_test)
+{
+    collider_test->copy_circle.circle.radius = 20.0f;
+    collider_test->copy_aabb.aabb.half_extents = { 40.0f, 20.0f };
+    collider_test->copy_capsule.capsule.radius = 20.0f;
+    collider_test->copy_capsule.capsule.half_length = 30.0f;
+    collider_test->copy_capsule.capsule.direction = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD);
+
+    collider_test->copy_circle.type = COLLIDER_TYPE_CIRCLE;
+    collider_test->copy_aabb.type = COLLIDER_TYPE_AABB;
+    collider_test->copy_capsule.type = COLLIDER_TYPE_CAPSULE;
+
+    Entity& a = collider_test->a;
+    Entity& b = collider_test->b;
+    a.collider = collider_test->copy_circle;
+    b.collider = collider_test->copy_circle;
+}
+
 void AppUpdateColliderTest(ColliderTest* collider_test)
 {
 }
@@ -149,7 +181,9 @@ void AppDrawBallPit(const BallPit& ball_pit)
     DrawFPS(720, 5);
 }
 
-void AppDrawColliderTest(const ColliderTest& collider_test)
+void AppDrawColliderTest(ColliderTest& collider_test)
 {
     ClearBackground(WHITE);
+    GuiToggleGroup({ 10, 10, 90, 30 }, "None A;Circle A;Box A;Capsule A", (int*)&collider_test.a.collider.type);
+    GuiToggleGroup({ 10, 45, 90, 30 }, "None B;Circle B;Box B;Capsule B", (int*)&collider_test.b.collider.type);
 }
