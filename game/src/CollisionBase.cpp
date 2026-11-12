@@ -43,7 +43,7 @@ bool HitTestCircleCapsule(Vector2 pos_circle, float radius_circle, Vector2 pos_c
     Vector2 top = pos_capsule + direction * half_length;
     Vector2 bot = pos_capsule - direction * half_length;
     Vector2 proj = Vector2ProjectPointLine(pos_circle, bot, top);
-    bool collision = HitTestCircles(pos_capsule, radius_circle, proj, radius_capsule, mtv);
+    bool collision = HitTestCircles(pos_circle, radius_circle, proj, radius_capsule, mtv);
     return collision;
 }
 

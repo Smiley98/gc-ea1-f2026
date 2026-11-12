@@ -172,15 +172,11 @@ void AppUpdateColliderTest(ColliderTest* test)
 {
     Entity& a = test->a;
     Entity& b = test->b;
-    Vector2 mtv = Vector2Zeros;
     b.pos = GetMousePosition();
-    //CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
-    //bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
 
-    CollisionFunc func = nullptr;
-    if (a.collider.type == COLLIDER_TYPE_CIRCLE && b.collider.type == COLLIDER_TYPE_CAPSULE)
-        COLLISION_TABLE[a.collider.type][b.collider.type];
-    bool collision = func != nullptr ? func(a.pos, a.collider, b.pos, b.collider, &mtv) : false;
+    Vector2 mtv = Vector2Zeros;
+    CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
+    bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
 
     a.pos += mtv;
     a.color = collision ? RED : GREEN;
