@@ -44,7 +44,17 @@ int main()
         }
 
         for (Entity& ball : balls)
+        {
             EntityUpdate(ball, dt);
+
+            if (ball.pos.x + ball.collider.circle.radius >= GetScreenWidth() ||
+                ball.pos.x - ball.collider.circle.radius <= 0.0f)
+                ball.vel.x *= -1.0f;
+
+            if (ball.pos.y + ball.collider.circle.radius >= GetScreenHeight() ||
+                ball.pos.y - ball.collider.circle.radius <= 0.0f)
+                ball.vel.y *= -1.0f;
+        }
 
         if (balls.size() >= 128) balls.erase(balls.begin());
 
@@ -60,7 +70,7 @@ int main()
     return 0;
 }
 
-// 2D loop not needed for ball pit since you just need to test circles against walls
+// jk we actually need this
 //std::vector<Entity> entities;
 //for (size_t i = 0; i < entities.size(); i++)
 //{
