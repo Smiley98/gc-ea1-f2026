@@ -58,8 +58,14 @@ bool HitTestCircleAABB(Vector2 pos_circle, float radius, Vector2 pos_aabb, Vecto
 // MTV resolves A from B (points from B to A)
 bool HitTestCapsuleAABB(Vector2 pos_capsule, float radius_capsule, float half_length, Vector2 direction, Vector2 pos_aabb, Vector2 half_extents, Vector2* mtv)
 {
-    Vector2 proj = Vector2ProjectPointLine(pos_aabb, pos_capsule + half_length * direction, pos_capsule - half_length * direction);
+    Vector2 top = pos_capsule + half_length * direction;
+    Vector2 bot = pos_capsule - half_length * direction;
+    Vector2 proj = Vector2ProjectPointLine(pos_aabb, bot, top);
     Vector2 clamp = Vector2Clamp(proj, pos_aabb - half_extents, pos_aabb + half_extents);
+
+    proj = Vector2ProjectPointLine(clamp, bot, top);
+    clamp = Vector2Clamp(proj, pos_aabb - half_extents, pos_aabb + half_extents);
+
     bool collision = HitTestCircles(proj, radius_capsule, clamp, 0.0f, mtv);
     return collision;
 }
