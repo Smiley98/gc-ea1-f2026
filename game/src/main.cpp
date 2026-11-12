@@ -58,10 +58,35 @@ int main()
 
         if (balls.size() >= 128) balls.erase(balls.begin());
 
+        for (size_t i = 0; i < balls.size(); i++)
+        {
+            for (size_t j = i + 1; j < balls.size(); j++)
+            {
+                Entity& a = balls[i];
+                Entity& b = balls[j];
+        
+                Vector2 mtv = Vector2Zeros;
+                CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
+                bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
+
+                if (collision)
+                {
+                    a.pos += mtv * 0.5f;
+                    b.pos -= mtv * 0.5f;
+
+                    a.vel *= -1.0f;
+                    b.vel *= -1.0f;
+                }
+            }
+        }
+
         BeginDrawing();
             ClearBackground(WHITE);
             for (const Entity& ball : balls)
                 DrawCollider(ball.pos, ball.collider, ball.color);
+            if (!balls.empty())
+                DrawText(TextFormat("%i", balls.size()), 10, 10, 20, balls.back().color);
+            DrawFPS(720, 5);
         EndDrawing();
     }
 
@@ -69,19 +94,3 @@ int main()
     CloseWindow();
     return 0;
 }
-
-// jk we actually need this
-//std::vector<Entity> entities;
-//for (size_t i = 0; i < entities.size(); i++)
-//{
-//    for (size_t j = i + 1; j < entities.size(); j++)
-//    {
-//        Entity& a = entities[i];
-//        Entity& b = entities[j];
-//
-//        Vector2 mtv = Vector2Zeros;
-//        CollisionFunc func = COLLISION_TABLE[a.collider.type][b.collider.type];
-//        bool collision = func(a.pos, a.collider, b.pos, b.collider, &mtv);
-//    }
-//}
-//std::erase_if(entities, [](Entity e) { return e.destroy; });
