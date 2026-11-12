@@ -71,3 +71,12 @@ bool HitTestCapsuleAABB(Vector2 pos_a, Collider col_a, Vector2 pos_b, Collider c
 //////////////////////////////
 // Collider overloads end ////
 //////////////////////////////
+
+CollisionFunc COLLISION_TABLE[4][4] =
+{
+    // NONE      // CIRCLE              // AABB             //CAPSULE
+    HitTestNone, HitTestNone,           HitTestNone,        HitTestNone,            // NONE
+    HitTestNone, HitTestCircles,        HitTestCircleAABB,  HitTestCircleCapsule,   // CIRCLE
+    HitTestNone, HitTestAABBCircle,     HitTestAABBs,       HitTestAABBCapsule,     // AABBs
+    HitTestNone, HitTestCapsuleCircle,  HitTestCapsuleAABB, HitTestCapsules         // CAPSULE
+};
