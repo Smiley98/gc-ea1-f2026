@@ -11,8 +11,8 @@ int main()
         // NONE      // CIRCLE              // AABB             //CAPSULE
         HitTestNone, HitTestNone,           HitTestNone,        HitTestNone,            // NONE
         HitTestNone, HitTestCircles,        HitTestCircleAABB,  HitTestCircleCapsule,   // CIRCLE
-        HitTestNone, HitTestAABBCircle,     HitTestAABBs,       HitTestNone,            // AABBs
-        HitTestNone, HitTestCapsuleCircle,  HitTestNone,        HitTestNone             // CAPSULE
+        HitTestNone, HitTestAABBCircle,     HitTestAABBs,       HitTestAABBCapsule,     // AABBs
+        HitTestNone, HitTestCapsuleCircle,  HitTestCapsuleAABB, HitTestCapsules         // CAPSULE
     };
 
     Rectangle ground;
