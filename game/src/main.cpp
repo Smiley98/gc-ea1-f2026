@@ -152,8 +152,8 @@ void AppInitColliderTest(ColliderTest* collider_test)
 {
     collider_test->templates[COLLIDER_TYPE_CIRCLE].circle.radius = 20.0f;
     collider_test->templates[COLLIDER_TYPE_AABB].aabb.half_extents = { 40.0f, 20.0f };
-    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.radius = 20.0f;
-    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.half_length = 30.0f;
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.radius = 10.0f;
+    collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.half_length = 80.0f;
     collider_test->templates[COLLIDER_TYPE_CAPSULE].capsule.direction = Vector2Rotate(Vector2UnitX, -30.0f * DEG2RAD);
 
     collider_test->templates[COLLIDER_TYPE_CIRCLE].type = COLLIDER_TYPE_CIRCLE;
@@ -162,8 +162,8 @@ void AppInitColliderTest(ColliderTest* collider_test)
 
     Entity& a = collider_test->a;
     Entity& b = collider_test->b;
-    a.collider = collider_test->templates[COLLIDER_TYPE_CIRCLE];
-    b.collider = collider_test->templates[COLLIDER_TYPE_CIRCLE];
+    a.collider = collider_test->templates[COLLIDER_TYPE_AABB];
+    b.collider = collider_test->templates[COLLIDER_TYPE_CAPSULE];
     a.pos = { GetScreenWidth() * 0.25f, GetScreenHeight() * 0.5f };
     b.pos = { GetScreenWidth() * 0.75f, GetScreenHeight() * 0.5f };
 }
@@ -198,8 +198,8 @@ void AppDrawColliderTest(ColliderTest& test)
     DrawCollider(test.a.pos, test.a.collider, test.a.color);
     DrawCollider(test.b.pos, test.b.collider, test.b.color);
 
-    static int type_a = COLLIDER_TYPE_CIRCLE;
-    static int type_b = COLLIDER_TYPE_CIRCLE;
+    static int type_a = test.a.collider.type;
+    static int type_b = test.b.collider.type;
     ClearBackground(WHITE);
     GuiToggleGroup({ 10, 10, 90, 30 }, "None A;Circle A;Box A;Capsule A", &type_a);
     GuiToggleGroup({ 10, 45, 90, 30 }, "None B;Circle B;Box B;Capsule B", &type_b);

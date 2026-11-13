@@ -63,9 +63,6 @@ bool HitTestCapsuleAABB(Vector2 pos_capsule, float radius_capsule, float half_le
     Vector2 proj = Vector2ProjectPointLine(pos_aabb, bot, top);
     Vector2 clamp = Vector2Clamp(proj, pos_aabb - half_extents, pos_aabb + half_extents);
 
-    proj = Vector2ProjectPointLine(clamp, bot, top);
-    clamp = Vector2Clamp(proj, pos_aabb - half_extents, pos_aabb + half_extents);
-
     bool collision = HitTestCircles(proj, radius_capsule, clamp, 0.0f, mtv);
     return collision;
 }
