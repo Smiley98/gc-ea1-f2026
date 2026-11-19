@@ -3,7 +3,8 @@
 enum AppState
 {
     APP_STATE_BALL_PIT,
-    APP_STATE_COLLIDER_TEST
+    APP_STATE_COLLIDER_TEST,
+    APP_STATE_FORCES
 };
 
 struct BallPit
@@ -19,14 +20,22 @@ struct ColliderTest
     Entity b;
 };
 
+struct Forces
+{
+    std::vector<Entity> balls;
+};
+
 void AppInitBallPit(BallPit* ball_pit);
 void AppInitColliderTest(ColliderTest* collider_test);
+void AppInitForces(Forces* forces);
 
 void AppUpdateColliderTest(ColliderTest* collider_test);
 void AppUpdateBallPit(BallPit* ball_pit);
+void AppUpdateForces(Forces* forces);
 
 void AppDrawColliderTest(ColliderTest& collider_test);
 void AppDrawBallPit(const BallPit& ball_pit);
+void AppDrawForces(const Forces& forces);
 
 int main()
 {
@@ -37,6 +46,7 @@ int main()
     int state = APP_STATE_COLLIDER_TEST;
     BallPit ball_pit{};
     ColliderTest collider_test{};
+    Forces forces{};
     AppInitBallPit(&ball_pit);
     AppInitColliderTest(&collider_test);
 
@@ -44,11 +54,13 @@ int main()
     {
         if (IsKeyPressed(KEY_TAB))
         {
-            ++state %= 2;
+            ++state %= 3;
             if (state == APP_STATE_BALL_PIT)
                 AppInitBallPit(&ball_pit);
             else if (state == APP_STATE_COLLIDER_TEST)
                 AppInitColliderTest(&collider_test);
+            else if (state == APP_STATE_FORCES)
+                AppInitForces(&forces);
         }
 
         switch (state)
@@ -58,6 +70,9 @@ int main()
             break;
         case APP_STATE_COLLIDER_TEST:
             AppUpdateColliderTest(&collider_test);
+            break;
+        case APP_STATE_FORCES:
+            AppUpdateForces(&forces);
             break;
         }
         
@@ -69,6 +84,9 @@ int main()
             break;
         case APP_STATE_COLLIDER_TEST:
             AppDrawColliderTest(collider_test);
+            break;
+        case APP_STATE_FORCES:
+            AppDrawForces(forces);
             break;
         }
         EndDrawing();
@@ -147,6 +165,10 @@ void AppUpdateBallPit(BallPit* ball_pit)
     }
 }
 
+void AppUpdateForces(Forces* forces)
+{
+}
+
 void AppInitBallPit(BallPit* ball_pit)
 {
     ball_pit->balls.reserve(128);
@@ -173,6 +195,10 @@ void AppInitColliderTest(ColliderTest* collider_test)
     b.pos = { GetScreenWidth() * 0.75f, GetScreenHeight() * 0.5f };
 }
 
+void AppInitForces(Forces* forces)
+{
+}
+
 void AppUpdateColliderTest(ColliderTest* test)
 {
     Entity& a = test->a;
@@ -196,6 +222,11 @@ void AppDrawBallPit(const BallPit& ball_pit)
     if (!ball_pit.balls.empty())
         DrawText(TextFormat("%i", ball_pit.balls.size()), 10, 10, 20, ball_pit.balls.back().color);
     DrawFPS(720, 5);
+}
+
+void AppDrawForces(const Forces& forces)
+{
+    ClearBackground(GREEN);
 }
 
 void AppDrawColliderTest(ColliderTest& test)
