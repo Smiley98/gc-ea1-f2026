@@ -1,11 +1,5 @@
 #include "ea1.cpp"
 
-template<typename T>
-T Div(T a, T b)
-{
-    return a / b;
-}
-
 enum AppState
 {
     APP_STATE_BALL_PIT,
@@ -36,14 +30,6 @@ void AppDrawBallPit(const BallPit& ball_pit);
 
 int main()
 {
-    // How templates work:
-    float a = 1.0f;
-    float b = 2.0f;
-    float x = Div(a, b);
-    int c = 1.0f;
-    int d = 2.0f;
-    int y = Div(a, b);
-    
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
@@ -131,7 +117,12 @@ void AppUpdateBallPit(BallPit* ball_pit)
             ball.vel.y *= -1.0f;
     }
 
-    if (balls.size() >= 128) balls.erase(balls.begin());
+    // Optimization to avoid copying 127 elements: swap last with first, then remove last!
+    if (balls.size() >= 128)
+    {
+        balls.front() = balls.back();
+        balls.pop_back();
+    }
 
     for (size_t i = 0; i < balls.size(); i++)
     {
