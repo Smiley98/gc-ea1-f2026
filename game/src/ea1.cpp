@@ -57,8 +57,10 @@ struct Entity
 {
     Vector2 pos;
     Vector2 vel;
-    Vector2 acc;
+    Vector2 force
+        ;
     float gravity_scale;
+    float mass_inverse;
     Color color;
 
     EntityType type;

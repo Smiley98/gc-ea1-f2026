@@ -22,7 +22,9 @@ struct ColliderTest
 
 struct Forces
 {
-    std::vector<Entity> balls;
+    Entity light;
+    Entity medium;
+    Entity heavy;
 };
 
 void AppInitBallPit(BallPit* ball_pit);
@@ -37,43 +39,49 @@ void AppDrawColliderTest(ColliderTest& collider_test);
 void AppDrawBallPit(const BallPit& ball_pit);
 void AppDrawForces(const Forces& forces);
 
+void AppReset(int state, ColliderTest* collider_test, BallPit* ball_pit, Forces* forces);
+
 int main()
 {
     InitWindow(800, 800, "Game");
     InitAudioDevice();
     SetTargetFPS(60);
 
-    int state = APP_STATE_COLLIDER_TEST;
+    int state = APP_STATE_FORCES;
     BallPit ball_pit{};
     ColliderTest collider_test{};
     Forces forces{};
-    AppInitBallPit(&ball_pit);
-    AppInitColliderTest(&collider_test);
+    AppReset(state, &collider_test, &ball_pit, &forces);
 
+    int frame_count = 0;
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_TAB))
         {
             ++state %= 3;
-            if (state == APP_STATE_BALL_PIT)
-                AppInitBallPit(&ball_pit);
-            else if (state == APP_STATE_COLLIDER_TEST)
-                AppInitColliderTest(&collider_test);
-            else if (state == APP_STATE_FORCES)
-                AppInitForces(&forces);
+            AppReset(state, &collider_test, &ball_pit, &forces);
         }
 
-        switch (state)
+        if (IsKeyPressed(KEY_R))
         {
-        case APP_STATE_BALL_PIT:
-            AppUpdateBallPit(&ball_pit);
-            break;
-        case APP_STATE_COLLIDER_TEST:
-            AppUpdateColliderTest(&collider_test);
-            break;
-        case APP_STATE_FORCES:
-            AppUpdateForces(&forces);
-            break;
+            AppReset(state, &collider_test, &ball_pit, &forces);
+        }
+
+        // Don't apply motion until GetFrameTime() is stable
+        if (frame_count >= 2)
+        {
+            switch (state)
+            {
+            case APP_STATE_BALL_PIT:
+                AppUpdateBallPit(&ball_pit);
+                break;
+            case APP_STATE_COLLIDER_TEST:
+                AppUpdateColliderTest(&collider_test);
+                break;
+            case APP_STATE_FORCES:
+                AppUpdateForces(&forces);
+                break;
+            }
         }
         
         BeginDrawing();
@@ -90,6 +98,8 @@ int main()
             break;
         }
         EndDrawing();
+
+        frame_count++;
     }
 
     CloseAudioDevice();
@@ -165,10 +175,6 @@ void AppUpdateBallPit(BallPit* ball_pit)
     }
 }
 
-void AppUpdateForces(Forces* forces)
-{
-}
-
 void AppInitBallPit(BallPit* ball_pit)
 {
     ball_pit->balls.reserve(128);
@@ -197,6 +203,27 @@ void AppInitColliderTest(ColliderTest* collider_test)
 
 void AppInitForces(Forces* forces)
 {
+    Entity& l = forces->light;
+    Entity& m = forces->medium;
+    Entity& h = forces->heavy;
+    l = {};
+    m = {};
+    h = {};
+
+    l.pos = { GetScreenWidth() * 0.25f, GetScreenHeight() * 0.5f };
+    l.gravity_scale = 1.0f;
+    l.mass_inverse = 1.0f / 1.0f;
+
+    m.pos = { GetScreenWidth() * 0.5f, GetScreenHeight() * 0.5f };
+    m.gravity_scale = 1.0f;
+    m.mass_inverse = 1.0f / 2.0f;
+
+    h.pos = { GetScreenWidth() * 0.75f, GetScreenHeight() * 0.5f };
+    h.gravity_scale = 1.0f;
+    h.mass_inverse = 1.0f / 5.0f;
+
+    Vector2 launch_force = Vector2UnitY * -10000.0f;
+    l.force = m.force = h.force = launch_force;
 }
 
 void AppUpdateColliderTest(ColliderTest* test)
@@ -214,6 +241,14 @@ void AppUpdateColliderTest(ColliderTest* test)
     b.color = collision ? RED : GREEN;
 }
 
+void AppUpdateForces(Forces* forces)
+{
+    float dt = GetFrameTime();
+    EntityUpdate(forces->light, dt);
+    EntityUpdate(forces->medium, dt);
+    EntityUpdate(forces->heavy, dt);
+}
+
 void AppDrawBallPit(const BallPit& ball_pit)
 {
     ClearBackground(WHITE);
@@ -226,7 +261,20 @@ void AppDrawBallPit(const BallPit& ball_pit)
 
 void AppDrawForces(const Forces& forces)
 {
-    ClearBackground(GREEN);
+    ClearBackground(WHITE);
+    DrawCircleV(forces.light.pos, 20.0f, GREEN);
+    DrawCircleV(forces.medium.pos, 20.0f, GREEN);
+    DrawCircleV(forces.heavy.pos, 20.0f, GREEN);
+}
+
+void AppReset(int state, ColliderTest* collider_test, BallPit* ball_pit, Forces* forces)
+{
+    if (state == APP_STATE_BALL_PIT)
+        AppInitBallPit(ball_pit);
+    else if (state == APP_STATE_COLLIDER_TEST)
+        AppInitColliderTest(collider_test);
+    else if (state == APP_STATE_FORCES)
+        AppInitForces(forces);
 }
 
 void AppDrawColliderTest(ColliderTest& test)
